@@ -1,6 +1,5 @@
 package senai.br.sp.SportWear_API.controller.form;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import senai.br.sp.SportWear_API.model.Produto;
@@ -15,6 +14,15 @@ public class ProdutoForm {
 	private String price;
 	@NotNull @NotEmpty
 	private String category;
+
+	public ProdutoForm(@NotNull @NotEmpty String title, @NotNull @NotEmpty String img, @NotNull @NotEmpty String price,
+			@NotNull @NotEmpty String category) {
+		super();
+		this.title = title;
+		this.img = img;
+		this.price = price;
+		this.category = category;
+	}
 
 	public String getTitle() {
 		return title;

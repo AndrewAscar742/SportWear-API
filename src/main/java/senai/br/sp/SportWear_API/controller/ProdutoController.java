@@ -25,7 +25,7 @@ import senai.br.sp.SportWear_API.repository.ProdutoRepository;
 
 @RestController
 @RequestMapping("/produtos")
-@CrossOrigin("http://localhost:3001/admin/produtos")
+@CrossOrigin("http://localhost:3000")
 public class ProdutoController {
 
 	@Autowired
@@ -35,7 +35,7 @@ public class ProdutoController {
 	@Transactional
 	public ResponseEntity<Produto> adicionar(@RequestBody @Valid ProdutoForm produtoForm,
 			UriComponentsBuilder uriBuilder) {
-		
+
 		Produto produto = produtoForm.converterProdutoForm();
 		produtoRep.saveAndFlush(produto);
 
@@ -45,38 +45,47 @@ public class ProdutoController {
 
 	@GetMapping
 	public List<Produto> listarTodos() {
-		List<Produto> listaProdutos = produtoRep.findAll();
-		return listaProdutos;
+		List<Produto> produto = produtoRep.findAll();
+		return produto;
 	}
 
 	@GetMapping("/{id}")
-	public List<Produto> ListarProduto(@PathVariable Integer category) {
-		List<Produto> listaProdutos = produtoRep.findByCategory(category);
-		return listaProdutos;
+	public ResponseEntity<ProdutoForm> ListarProduto(@PathVariable String id) {
+		Optional<Produto> produto = produtoRep.findById(Integer.parseInt(id));
+		if (produto.isPresent()) {
+			String title = produto.get().getTitle();
+			String img = produto.get().getImg();
+			String price = produto.get().getPrice();
+			String category = produto.get().getCategory();
+			return ResponseEntity.ok(new ProdutoForm(title, img, price, category));
+		}
+
+		return ResponseEntity.notFound().build();
 	}
 
 	@PutMapping("/{id}")
 	@Transactional
-	public ResponseEntity<Produto> alterarProduto(@RequestBody @Valid ProdutoForm produtoWeb, @PathVariable Integer id) {
-		Optional<Produto> optional = produtoRep.findById(id);
-		
+	public ResponseEntity<Produto> alterarProduto(@RequestBody @Valid ProdutoForm produtoWeb,
+			@PathVariable String id) {
+		Optional<Produto> optional = produtoRep.findById(Integer.parseInt(id));
+
 		if (optional.isPresent()) {
 			Produto produto = produtoWeb.converterProdutoForm();
-			produto.setId(id);
+			produto.setId(Integer.parseInt(id));
 			produtoRep.saveAndFlush(produto);
 			return ResponseEntity.ok(produto);
 		}
-		
+
 		return ResponseEntity.notFound().build();
 	}
 
 	@DeleteMapping("/{id}")
 	@Transactional
-	public ResponseEntity<?> deletarProduto(@PathVariable Integer id) {
-		Optional<Produto> optional = produtoRep.findById(id);
+	public ResponseEntity<?> deletarProduto(@PathVariable String id) {
+		Optional<Produto> optional = produtoRep.findById(Integer.parseInt(id));
 
 		if (optional.isPresent()) {
-			produtoRep.deleteById(id);
+			produtoRep.deleteById(Integer.parseInt(id));
 			return ResponseEntity.ok().build();
 		}
 		return ResponseEntity.notFound().build();
